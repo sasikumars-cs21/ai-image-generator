@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Generator</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="min-h-screen transition-colors duration-300">
+    <!-- Image Viewer -->
+    <div id="imageViewer" class="image-viewer">
+        <div class="image-viewer-content">
+            <img id="viewedImage" src="" alt="Preview">
+            <button class="close-viewer" onclick="closeImageViewer()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="glass sticky top-0 z-20 shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <button id="sidebarToggle" class="mr-4 md:hidden text-xl">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="text-2xl md:text-3xl font-bold gradient-text">
+                    <i class="fas fa-magic mr-2"></i>AI Image Generator
+                </h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative hidden md:block">
+                    <input type="text" id="searchChat" placeholder="Search messages..." class="modern-select text-sm px-4 py-2 rounded-full w-40 md:w-56">
+                    <i class="fas fa-search absolute right-3 top-2.5 text-gray-400"></i>
+                </div>
+                <button id="themeToggle" class="p-2 rounded-full glass text-lg">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:block"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex flex-1 h-full">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar w-full md:w-64 flex-shrink-0 overflow-y-auto h-full sticky top-16">
+            <div class="p-4">
+                <div class="relative mb-4 md:hidden">
+                    <input type="text" id="searchChatMobile" placeholder="Search messages..." class="modern-select w-full text-sm px-4 py-2 rounded-lg">
+                    <i class="fas fa-search absolute right-3 top-2.5 text-gray-400"></i>
+                </div>
+
+                <!-- Style Category Select -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2 flex items-center">
+                        <i class="fas fa-palette mr-2"></i>Style Category
+                    </label>
+                    <select id="styleCategorySelect" class="modern-select w-full p-2">
+                        <option value="trending">🔥 Trending</option>
+                        <option value="photographic">📸 Photographic</option>
+                        <option value="artistic">🎨 Artistic</option>
+                        <option value="digital">💻 Digital</option>
+                        <option value="fantasy">🧙 Fantasy</option>
+                        <option value="minimalist">🧊 Minimalist</option>
+                        <option value="vintage">📻 Vintage</option>
+                        <option value="futuristic">🚀 Futuristic</option>
+                        <option value="abstract">🌀 Abstract</option>
+                        <option value="comic">🦸 Comic</option>
+                    </select>
+                </div>
+
+                <!-- Style Options -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">
+                        Style
+                    </label>
+                    <div id="styleOptionsContainer" class="space-y-2 max-h-[30vh] overflow-y-auto pr-2">
+                        <!-- Style options will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Advanced Settings -->
+                <div class="mt-6">
+                    <button id="advancedSettingsBtn" class="flex items-center text-sm font-medium w-full mb-2">
+                        <i class="fas fa-sliders-h mr-2"></i>
+                        <span>Advanced Settings</span>
+                        <i id="advancedSettingsIcon" class="fas fa-chevron-down ml-auto transition-transform duration-300"></i>
+                    </button>
+
+                    <div id="advancedSettingsContent" class="overflow-hidden transition-all duration-300" style="max-height: 0;">
+                        <!-- Aspect Ratio -->
+                        <div class="mb-4">
+                            <label class="block text-xs font-medium mb-2">
+                                Aspect Ratio
+                            </label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button data-width="512" data-height="512" class="aspect-ratio-btn p-2 rounded-lg text-center">
+                                    <div class="text-sm mb-1">⬜</div>
+                                    <div class="text-xs">1:1</div>
+                                </button>
+                                <button data-width="1024" data-height="576" class="aspect-ratio-btn p-2 rounded-lg text-center">
+                                    <div class="text-sm mb-1">📺</div>
+                                    <div class="text-xs">16:9</div>
+                                </button>
+                                <button data-width="576" data-height="1024" class="aspect-ratio-btn p-2 rounded-lg text-center">
+                                    <div class="text-sm mb-1">📱</div>
+                                    <div class="text-xs">9:16</div>
+                                </button>
+                                <button data-width="1024" data-height="768" class="aspect-ratio-btn p-2 rounded-lg text-center">
+                                    <div class="text-sm mb-1">🖥️</div>
+                                    <div class="text-xs">4:3</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Image Size -->
+                        <div>
+                            <label class="block text-xs font-medium mb-2">
+                                Custom Size
+                            </label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <select id="imageWidth" class="modern-select w-full p-2">
+                                    <option value="512">512px</option>
+                                    <option value="768">768px</option>
+                                    <option value="1024">1024px</option>
+                                </select>
+                                <select id="imageHeight" class="modern-select w-full p-2">
+                                    <option value="512">512px</option>
+                                    <option value="768">768px</option>
+                                    <option value="1024">1024px</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+        <!-- Chat Area -->
+        <main class="flex-1 flex flex-col">
+            <div class="chat-container">
+                <div id="chatMessages" class="chat-messages">
+                    <!-- Welcome message -->
+                    <div class="chat-message flex justify-center mb-4">
+                        <div class="text-center p-4 rounded-lg bg-gray-100 dark:bg-gray-700 max-w-md glass">
+                            <div class="font-bold mb-2">Welcome to AI Image Generator!</div>
+                            <p>Describe what you want to create and I'll generate an image for you. Choose a style from the sidebar.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <div class="relative">
+                        <textarea id="imagePrompt" class="w-full p-3 pr-10 rounded-lg bg-white bg-opacity-10 dark:bg-black dark:bg-opacity-10 text-current placeholder-current placeholder-opacity-70 border border-white border-opacity-20 focus:outline-none focus:ring-2 focus:ring-primary" rows="1" placeholder="Describe what you want to create..."></textarea>
+                        <button id="generateImageBtn" class="absolute right-2 bottom-2 p-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 transition-all">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Press Shift+Enter for new line</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
