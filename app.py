@@ -10,12 +10,6 @@ import random
 app = Flask(__name__)
 CORS(app)
 
-# Add this route to explicitly handle static files with correct MIME types
-@app.route('/static/<path:filename>')
-def serve_static(filename):
-    root_dir = os.path.dirname(os.getcwd())
-    return send_from_directory(os.path.join(root_dir, 'static'), filename)
-
 
 # Configuration
 app.config['GENERATIONS_FOLDER'] = 'static/generations'
